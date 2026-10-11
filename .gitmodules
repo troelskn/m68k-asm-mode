@@ -1,0 +1,4 @@
+[submodule "m68k-tools"]
+	path = m68k-tools
+	url = https://github.com/grahambates/m68k-tools.git
+	shallow = true

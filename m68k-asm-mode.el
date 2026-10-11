@@ -7,6 +7,7 @@
 ;; Clock-cycle costs in the margin are a separate minor mode, in m68k-asm-cycles.el:
 ;; C-c C-c toggles it, C-c C-t picks the target CPU.  Plain-language names of
 ;; operations in the echo area are in m68k-asm-doc.el: C-c C-d toggles them.
+;; Full documentation pages in a side panel are in m68k-asm-panel.el: C-c C-p.
 ;;
 ;; Indentation follows the assembler's own rule that whatever starts in column 0
 ;; is a label:
@@ -283,6 +284,7 @@ Point is at the first non-blank character of the line."
 (autoload 'm68k-asm-cycles-set-target "m68k-asm-cycles" "Pick the CPU for clock-cycle costs." t)
 
 (autoload 'm68k-asm-doc-eldoc "m68k-asm-doc")
+(autoload 'm68k-asm-panel "m68k-asm-panel" "Open or close the documentation panel." t)
 
 (defun m68k-asm-toggle-describe-operations ()
   "Toggle naming the current line's operation in the echo area, in this buffer."
@@ -296,7 +298,8 @@ Point is at the first non-blank character of the line."
   :doc "Keymap for `m68k-asm-mode'."
   "C-c C-c" #'m68k-asm-cycles-mode
   "C-c C-t" #'m68k-asm-cycles-set-target
-  "C-c C-d" #'m68k-asm-toggle-describe-operations)
+  "C-c C-d" #'m68k-asm-toggle-describe-operations
+  "C-c C-p" #'m68k-asm-panel)
 
 ;;;###autoload
 (define-derived-mode m68k-asm-mode prog-mode "m68k"

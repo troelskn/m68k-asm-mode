@@ -1,12 +1,18 @@
 # m68k-asm-mode
 
-An Emacs major mode for Motorola 680x0 assembly in vasm's Motorola syntax, the Devpac-style syntax most Amiga sources use. It highlights and indents code, can show clock-cycle costs in the left margin, and names the operation on the current line in the echo area. There is no LSP.
+An Emacs major mode for Motorola 680x0 assembly in vasm's Motorola syntax, the Devpac-style syntax most Amiga sources use. It highlights and indents code, can show clock-cycle costs in the left margin, shows the name of the operation on the current line in the echo area, and can open its full documentation page in a side panel. There is no LSP.
 
 Some inspiration from [themkat/emacs-m68k](https://github.com/themkat/emacs-m68k).
 
 ## Install
 
 You need Emacs 29.1 or later. I use it on Aquamacs 4 (Emacs 29.4).
+
+The documentation panel reads its pages from a git submodule, so clone with `--recursive`, or fetch it afterwards:
+
+```sh
+git submodule update --init
+```
 
 ```elisp
 (add-to-list 'load-path "~/Projects/troelskn-m68k-asm-mode")
@@ -31,6 +37,7 @@ Everything else works without it.
 | `C-c C-c` | Toggle cycle counts in the margin |
 | `C-c C-t` | Pick the target CPU for cycle counts (68000, 68020, 68030) |
 | `C-c C-d` | Toggle operation names in the echo area |
+| `C-c C-p` | Open or close the documentation panel |
 
 ## Highlighting
 
@@ -86,7 +93,15 @@ The size suffix is spelled out according to the instruction. On a branch it is t
 
 The directive descriptions come from the vasm manual. The instruction descriptions are my own summaries of the Motorola mnemonics, written as a learning aid. Check the Programmer's Reference Manual before relying on one for flag behaviour.
 
-`m68k-asm-describe-operations` sets whether it starts on (it does by default).
+`m68k-asm-describe-operations` toggles whether it starts on (it does by default).
+
+## Documentation panel
+
+`C-c C-p` opens a panel on the right of the frame with the full documentation for the operation on the current line. The page has syntax, operation, condition codes, addressing modes, processors and a description. `C-c C-p` again, or `q` in the panel, closes it.
+
+The pages come from [m68k-tools](https://github.com/grahambates/m68k-tools) by Graham Bates (MIT), which is a submodule here. The instruction pages are adapted from Motorola's M68000 Family Programmer's Reference Manual (copyright Motorola Inc./NXP). `git submodule update --remote` pulls upstream fixes.
+
+They cover the 68000 thoroughly. Many 020+ pages have only a title and the processor list, and some names have no page at all, mostly the rarer FPU condition variants and the directives vasm has but m68k-tools doesn't document. The panel always starts with this mode's own one-line description, so there is something to read either way. Aliases such as `dbra`, `bhs` and `global` open the page of the name they stand for (`dbf`, `bcc`, `public`). Of the 517 names the mode knows, 402 have a page.
 
 ## The directive list
 
@@ -106,9 +121,13 @@ Redo this when you move to a new vasm version.
 | `m68k-asm-cycles-cache` | t | 020/030: assume instruction-cache hits |
 | `m68k-asm-cycles-program` | "68kcounter" | Path to 68kcounter, if it isn't on `exec-path` |
 | `m68k-asm-cycles-delay` | 0.5 | Seconds idle before recounting |
+| `m68k-asm-panel-width` | 0.33 | Width of the documentation panel, as a fraction of the frame |
+| `m68k-asm-panel-docs-directory` | the submodule | Where `instructions.json` and `directives.json` are |
 
 ## Files
 
 - `m68k-asm-mode.el` is the major mode, with highlighting, indentation and keys.
 - `m68k-asm-cycles.el` is the cycle-count minor mode.
 - `m68k-asm-doc.el` holds the operation names and the eldoc backend.
+- `m68k-asm-panel.el` is the documentation panel.
+- `m68k-tools/` is the submodule the panel reads its pages from.

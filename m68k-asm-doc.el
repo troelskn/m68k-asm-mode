@@ -459,29 +459,36 @@ Those round the result to single or double precision.")
         (when (re-search-forward (concat "^" (regexp-quote name) ":?[ \t]+[mM][aA][cC][rR][oO]\\_>") nil t)
           (line-number-at-pos))))))
 
-(defun m68k-asm-doc--describe-line ()
-  "Description of the operation on the current line, or nil."
+(defun m68k-asm-doc--line-operation ()
+  "The operation on the current line, as (WRITTEN OPERATION SUFFIX), or nil.
+WRITTEN is the operation as it appears in the source, size suffix included;
+OPERATION is the same without the suffix.  SUFFIX is the suffix letter in
+lower case, or nil."
   (save-excursion
     (beginning-of-line)
     (when (let ((case-fold-search t))
             (looking-at (concat m68k-asm--label-prefix
-                                "\\([[:alpha:]_][[:alnum:]_$]*\\)\\(?:\\.\\([[:alpha:]]\\)\\)?\\_>")))
-      (let* ((written (match-string-no-properties 0))
-             (operation (match-string-no-properties 1))
-             (mnemonic (downcase operation))
-             (suffix (and (match-beginning 2) (downcase (match-string-no-properties 2))))
-             (entry (gethash mnemonic m68k-asm-doc--table))
-             (shown (propertize (string-trim (replace-regexp-in-string "\\`[^ \t]*" "" written))
-                                'face (if entry 'font-lock-keyword-face 'm68k-asm-macro-face))))
-        (if entry
-            (let ((size (and suffix (m68k-asm-doc--size mnemonic suffix))))
-              (format "%s  %s%s: %s" shown (nth 1 entry)
-                      (if size (concat ", " size) "")
-                      (nth 2 entry)))
-          (let ((line (m68k-asm-doc--macro-line operation)))
-            (if line
-                (format "%s  macro, defined on line %d" shown line)
-              (format "%s  macro, or an operation this mode does not know" shown))))))))
+                                "\\(\\([[:alpha:]_][[:alnum:]_$]*\\)\\(?:\\.\\([[:alpha:]]\\)\\)?\\)\\_>")))
+      (list (match-string-no-properties 1)
+            (match-string-no-properties 2)
+            (and (match-beginning 3) (downcase (match-string-no-properties 3)))))))
+
+(defun m68k-asm-doc--describe-line ()
+  "Description of the operation on the current line, or nil."
+  (pcase (m68k-asm-doc--line-operation)
+    (`(,written ,operation ,suffix)
+     (let* ((mnemonic (downcase operation))
+            (entry (gethash mnemonic m68k-asm-doc--table))
+            (shown (propertize written 'face (if entry 'font-lock-keyword-face 'm68k-asm-macro-face))))
+       (if entry
+           (let ((size (and suffix (m68k-asm-doc--size mnemonic suffix))))
+             (format "%s  %s%s: %s" shown (nth 1 entry)
+                     (if size (concat ", " size) "")
+                     (nth 2 entry)))
+         (let ((line (m68k-asm-doc--macro-line operation)))
+           (if line
+               (format "%s  macro, defined on line %d" shown line)
+             (format "%s  macro, or an operation this mode does not know" shown))))))))
 
 ;;;###autoload
 (defun m68k-asm-doc-eldoc (&rest _)
