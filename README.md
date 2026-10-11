@@ -4,6 +4,8 @@ An Emacs major mode for Motorola 680x0 assembly in vasm's Motorola syntax, the D
 
 Some inspiration from [themkat/emacs-m68k](https://github.com/themkat/emacs-m68k).
 
+![](screenshot.png)
+
 ## Install
 
 You need Emacs 29.1 or later. I use it on Aquamacs 4 (Emacs 29.4).
